@@ -1,21 +1,19 @@
 =====================================================
-APPS TO BE REMOVED
+NOTES
 =====================================================
+Arguments in angle brackets '<>' are required
+Arguments in square brackets '[]' are options
+Since adb and fastboot command options are constantly changing check for equivalent command if anyone doesn't work
 
-Google app paths:
-Play Music - com.google.android.music
-Play Videos - com.google.android.videos
-Google Photos - com.google.android.apps.photos
-
-Facebooks App paths:
-com.facebook.appmanager
-com.facebook.services
-com.facebook.system
+=====================================================
+LINKS TO IMPORTANT TOOLS
+=====================================================
 
 Android Studio > Whats New > SDK platform Tools for adb, fastboot, and systrace
 https://developer.android.com/studio/releases/platform-tools
-https://www.microsoft.com/en-us/download/confirmation.aspx?id=53840
 https://developer.android.com/studio/command-line/adb
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=53840
+https://microg.org/
 
 =====================================================
 PRE-INSTALLATION CHECKLIST FOR CUSTOM ROM INSTALLATION
@@ -24,20 +22,20 @@ PRE-INSTALLATION CHECKLIST FOR CUSTOM ROM INSTALLATION
 Custom ROM Installation Process:
 > Backup factory ROM and Data from recovery for Nandroid backup
 > Flash custom ROM
-> If sucessfull, reboot to recovery and Wipe/Factory Rest (Dalvik Cache, Cache and Data)
+> If successful, reboot to recovery and Wipe/Factory Rest (Dalvik Cache, Cache and Data)
 > Flash Gapps or microGApps and setup phone
-> If failure restore backedup factory ROM for Nandroid image
+> If failure restore backup factory ROM from NANDroid image
 
 Root not required to install custom ROM, bootloader unlock and custom recovery is required as factory recovery will only flash signed images
 For older phone you have a seperate boot and recovery partition due to which only recovery is flashed available as an *.img file
-On never phones boot and recovery are together so a .img and a xxx-installer.zip is available for twrp
+On never phones boot and recovery are together so a .img and a xxx-installer.zip is available for TWRP
 
-LG devices will delete twrp recovery on boot
+LG devices will delete TWRP recovery on boot
 For Samsung devices which use ODIN a different recovery file is needed
 Never Windows have ADB drivers but they are wrong. Proper drivers for ADB have to be downloaded and installed for Windows. This is not required for Linux or Mac.
 Sometime no-verify-opt-encrypt may not work if decrypting the entire filesystem and some data may remain encrypted
 adb logcat -v long > logcat.txt #If something goes wrong get the log in the cwd
-fastboot reboot #to reboot phone
+fastboot reboot #to reboot phone to system
 
 =====================================================
 CUSTOM ROM INSTALLATION PROCESS
@@ -48,11 +46,11 @@ Preparation - Collect information and required files:
 > Pull a buildprops file from adb (adb pull /system/build.prop OR fastboot getvar all)
 > build.prop value of ro.product.name gives device code name
 > adb getprop ro.treble.enabled should return true for Treble support
-> Some newer phones have /recovery in /boot for these there is a seperate twrp-installer.zip to be installed in the /boot. These phones should not be flashed twrp.img and the twrp installer needs to be on the phone as it will need to be installed after each time a custom ROM is flashed.
+> Some newer phones have /recovery in /boot for these there is a seperate TWRP-installer.zip to be installed in the /boot. These phones should not be flashed TWRP.img and the TWRP installer needs to be on the phone as it will need to be installed after each time a custom ROM is flashed.
 > Check for a recovery. root, unroot, custom ROM and GApps (pico) for your phone if available download all these and also stock ROM as backup
 > Check if phone is encrypted in which case a No-verify-opt-encrypt.zip file is also requried to be downloaded as well
 > If rooting with Magisk.zip then also get a Magisk-unintaller.zip and a Magisk Manager APK
-> When booting from twrp you will see a message "Unmodified system partition" if phone is encrypted and will need your PIN to decrypt or do a data wipe
+> When booting from TWRP you will see a message "Unmodified system partition" if phone is encrypted and will need your PIN to decrypt or do a data wipe
 
 =====================================================
 
@@ -68,7 +66,7 @@ Bootloader Unlocking Process: UNLOCKING BOOTLOADER WIPES DATA, BACKUP DATA BEFOR
 > Enable developer mode (Click 7 times on build number in settings)
 > Enable USB Debugging (Settings)
 > Enable "OEM Unlock" in settings (Andoid M onwards has this option)
-> Connect device and put it in in file tranfer mode (MTP) #for general compaitibility not necessary in most cases
+> Connect device and put it in in file transfer mode (MTP) #for general compatibility not necessary in most cases
 adb devices #check if your device is showing (should show an ID and say device next to it) it will confirm is drivers are installed. USB debugging must be enabled on the phone and install via USB should be enabled in developer options, connect in file transfer mode  and accept connection on device
 adb reboot bootloader #to go into fastboot mode or Vol Up+Pwr button
 fastboot devices #should show your device with an ID and say fastboot next to it which means fastboot is working
@@ -81,46 +79,79 @@ fastboot flashing unlock #for new version (if previous command doesn't work)) ag
 Recovery Flashing Process:
 fastboot flash recovery <filename>.img #Many devices will replace custom recovery after installation. To prevent this TWRP will patch the stock ROM if you reboot into recovey after flashing TWRP
 ALTERNATE:
-fastboot boot twrp.img #boot image through fastboot which is temporary there is no flashing
+fastboot boot TWRP.img #boot image through fastboot which is temporary there is no flashing
 
 =====================================================
 
 Rooting Process:
 > Copy Magisk.zip, Magisk-unintaller.zip and Magisk Manager APK to the device
 > Flash Magisk from recovery if there are errors then flash Magisk uninstaller
-> After booting into the device if you dont see Magisk Mager in Apps then intall the APK
-> Open Magisk Manager and check version for instll verification and also do Safely Net check
+> After booting into the device if you don't see Magisk Mager in Apps then intall the APK
+> Open Magisk Manager and check version for install verification and also do Safely Net check
 
 =====================================================
 USEFUL COMMANDS
 =====================================================
 
 Other ADB commands:
-adb reboot recovery #To go to recovery
-adb reboot download #To go to ODIN
+adb help #Displays the Help Documentation on ADB commands
+adb usb #It shows all Android devices and emulators connected to your computer via a USB cable
+adb connect ip_address_of_device #Using the ‘adb connect’ command, you can connect the IP address of your Android device to your computer
+adb logcat #Displays the log data onto the screen. You can use this command with the following parameters for different purposes as shown below
+adb logcat -d > [path_to_file] #Similarly, by using the ‘-d’ parameter, you can save the logcat output to a file on your computer
+adb sideload #Just as you can flash zip packages from a custom recovery, you can also do it via adb sideload directly from your computer without having to transfer them first to your device, provided the recovery supports it
+adb reboot [<mode>] # Optional mode, omission boots to system, options are bootloader, recovery, download. download on samsung goes to ODIN
 adb install <packagename>
-adb shell #Or prefix each commands with "adb shell". Admin priveleges may be required to go into adb shell
-$> cmd appops set <pkgname> RUN_IN_BACKGROUND ignore #to disable background running use "allow" to enable 
-$> cmd appops set <pkgname> WAKE_LOCK ignore #to disable Wakelock. Use "allow" to enable
-$> pm list packagees | grep <pkgname> #list all packages and pipe them to grep such as "amazon/flipkart/Xiaomi/samsung" etc
-$> pm list packages -d #list all
-$> pm hide <pkgname> #hide apps use "nohide" to show for pre-5.0 use "block"
-$> pm disable <packagename> #System will ignore these pacakages. "enable" to enable again. If it doesn't enable sometime it can happen, then factory reset.
-$> pm uninstall -k --user 0 <name of package> #Using -k will leaave cache and data in place allows prevents checks for some OEM software allowing uninstall. It uninstalls only for one user so package will remain on system. System apps in system partition can be disabled as uninstalling it will not give back space as the system partition is not used for any other purpose.
-$> pm uninstall <packagename> #to remove the 0kb entries after uninstalling an app. <packagename> here is the name of the 0kb entry
-$> pm clear <pkgname> #delete data
-$> cmd package install-existing <name of package> #to install system package again
-$> chmod 755 /pathtoapplication/applicationname #Only chmod after copy to andriod FS. If file has been copied from FAT32 parition which doens't save permissions
-$> rm </path/filename> #To delete files. Required to be mounted as rw
 adb push <filename> </pathtodirectoryonphone/> #copy files to phone
 adb pull </pathtofile/filename> <destination> #copy files to computer
+adb backup #Create a full backup of your Android device and save to your computer
+adb restore #Restore a backup to your device
+
+ADB shell commands:
+adb shell #Or prefix each commands with "adb shell". Admin privileges may be required to go into adb shell
+$> screencap #By using the following ADB shell commands, you can capture the screenshot of your device display and then download the captured screen to your computer
+$> screenrecord #On Android devices running Android 4.4 KitKat and above, you can even record your phone or tablet’s screen and download the recorded video to your computer using the AD
+$> top #If you want to know about the top CPU processes running on your Android device
+$> input keyevent <event#id> #By using the following ADB Shell key event commands, you can trigger certain actions performed by certain hardware buttons or UI options on Android devices
+$> dumpsys #You can also use it to get information about specific components of your device, such as display, battery, etc by using additional agruments
+$> cmd appops set <pkgname> RUN_IN_BACKGROUND ignore #to disable background running use "allow" to enable 
+$> cmd appops set <pkgname> WAKE_LOCK ignore #to disable Wakelock. Use "allow" to enable
+$> cmd package install-existing <name of package> #to install system package again
+$> pm list packages | grep <pkgname> #list all packages and pipe them to grep such as "amazon/flipkart/Xiaomi/samsung" etc
+$> pm list packages -d #-f #To list all the packages installed on your devices including the system apps
+$> pm list packages -d #-s #To get a list only system packages
+$> pm list packages -d #-3 #To list only 3rd-party packages
+$> pm list packages -d #-d #To show only the disabled app packages
+$> pm list packages -d #-e #To show only enabled app packages
+$> pm list packages -d #-u #To list uninstalled app packages with installed pages
+$> pm hide <pkgname> #hide apps use "nohide" to show for pre-5.0 use "block"
+$> pm disable <packagename> #System will ignore these packages. "enable" to enable again. If it doesn't enable sometime it can happen, then factory reset.
+$> pm uninstall -k --user 0 <name of package> #Using -k will leave cache and data in place allows prevents checks for some OEM software allowing installation. It uninstalls only for one user so package will remain on system. System apps in system partition can be disabled as uninstalling it will not give back space as the system partition is not used for any other purpose.
+$> pm uninstall <packagename> #to remove the 0kb entries after uninstalling an app. <packagename> here is the name of the 0kb entry
+$> pm clear <pkgname> #delete data
+$> chmod 755 /pathtoapplication/applicationname #Only chmod after copy to andriod FS. If file has been copied from FAT32 partition which doesn't save permissions
+$> rm </path/filename> #To delete files. Required to be mounted as rw
 
 Other fastboot commands:
-fastboot flash boot boot.img
-fastboot flash system system.img
-fastboot flash userdata data.img
-fastboot reboot 
+fastboot flash boot <boot.img>
+fastboot flash system <system.img>
+fastboot flash vbmeta <vbmeta.img>
+fastboot reboot [<mode>] # Optional mode, omission boots to system, options are bootloader, recovery
 
 Other Android commands:
 mount -o rw,remount /dev/block/stl9 /system #mount a partition as rw
-dd if=/sdcard/test.txt of=/system/app/test.txt #copying files within phone safter than cp command
+dd if=/sdcard/test.txt of=/system/app/test.txt #copying files within phone safer than cp command
+
+=====================================================
+APPS TO BE REMOVED
+=====================================================
+
+Google app paths:
+Play Music - com.google.android.music
+Play Videos - com.google.android.videos
+Google Photos - com.google.android.apps.photos
+
+Facebooks App paths:
+com.facebook.appmanager
+com.facebook.services
+com.facebook.system
