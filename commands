@@ -1,6 +1,8 @@
 =====================================================
 NOTES
 =====================================================
+P.S: adb commands constantly undergo changes check the latest syntax with "<command> help" or from:
+https://developer.android.com/studio/command-line/adb
 Arguments in angle brackets '<>' are required
 Arguments in square brackets '[]' are options
 Since adb and fastboot command options are constantly changing check for equivalent command if anyone doesn't work
@@ -10,9 +12,11 @@ LINKS TO IMPORTANT TOOLS
 =====================================================
 
 Android Studio > Whats New > SDK platform Tools for adb, fastboot, and systrace
+https://developer.android.com/studio/run/win-usb
 https://developer.android.com/studio/releases/platform-tools
-https://developer.android.com/studio/command-line/adb
-https://www.microsoft.com/en-us/download/confirmation.aspx?id=53840
+
+https://twrp.me/
+https://wiki.orangefox.tech/en/home
 https://microg.org/
 
 =====================================================
@@ -45,41 +49,74 @@ Preparation - Collect information and required files:
 > Check build, version from About Phone better take a screenshot. Check whether phone is treble supported and partition type (A or A/B)
 > Pull a buildprops file from adb (adb pull /system/build.prop OR fastboot getvar all)
 > build.prop value of ro.product.name gives device code name
-> adb getprop ro.treble.enabled should return true for Treble support
-> Some newer phones have /recovery in /boot for these there is a seperate TWRP-installer.zip to be installed in the /boot. These phones should not be flashed TWRP.img and the TWRP installer needs to be on the phone as it will need to be installed after each time a custom ROM is flashed.
+Preparation - Collect information and required files:
+> Check build, version from About Phone better take a screenshot. Check whether phone is treble supported and partition type (A or A/B)
+> Pull the build.prop file from adb (adb pull /system/build.prop OR fastboot getvar all)
+> build.prop value of ro.product.name gives device code name
+> adb shell getprop ro.treble.enabled should return true for Treble support
+Alternatively
+> getprop ro.boot.slot_suffix # will return _a or _b if A/B partition type exists other wise blank output
+> getprop ro.build.ab_update # will retrun true if AB parttion exists otherwise blank output
+> Some newer phones have /recovery in /boot for these there is a seperate twrp-installer.zip to be installed in the /boot. These phones should not be flashed twrp.img and the twrp installer needs to be on the phone as it will need to be installed after each time a custom ROM is flashed.
 > Check for a recovery. root, unroot, custom ROM and GApps (pico) for your phone if available download all these and also stock ROM as backup
 > Check if phone is encrypted in which case a No-verify-opt-encrypt.zip file is also requried to be downloaded as well
 > If rooting with Magisk.zip then also get a Magisk-unintaller.zip and a Magisk Manager APK
-> When booting from TWRP you will see a message "Unmodified system partition" if phone is encrypted and will need your PIN to decrypt or do a data wipe
+> When booting from twrp you will see a message "Unmodified system partition" if phone is encrypted and will need your PIN to decrypt or do a data wipe
 
 =====================================================
+INSTALLATION: DRIVERS, ADB and FASTBOOT
+=====================================================
+Drivers (ONLY REQUIRED FOR WINDOWS):
+If your devices is already listed doesn't always mean that proper drivers are installed you can still check with "adb devices"
+> Download Google drivers and open devmgmt.msc> Click on the first entery (Your computer name) > Menu: Action> Add Legacy Hardware> Select ADB Interface and proceed
+> Now connect your phone let Windows install ADB drivers > after connecting phone it should show Android ADB interface
+and type "adb devices" if output is: "<hex code> device" # Drivers are installed
+> If output is: "<hex code> unauthorised" # Drivers installed and USB Debugging on phone needs to be enabled and permission provided on the phone
 
-ADB and Fastboot Installation:
-> Download platform-tools and put it into a folder and add that path to the session path with a batch file
-> Install ADB drivers > after connecting phone it should install Google ADB interface
-	<phone name> and under it <phone name ADB interface> should show in device manager after installing ADB drivers
+=====================================================
+Installing Google Drivers when driver installation process fails:
+Credits: https://www.thecustomdroid.com/google-android-usb-drivers/
+> Remove all existing drivers and restart PC
+> Connect device and let iet installation go though normally and check with "adb devices"
+
+Manual installation of drivers:
+> Open ‘android_winusb.inf‘ and locate ‘[Google.NTx86]‘ section or the ‘[Google.NTamd64]‘ section based on your version of Windows 32 or 64-bit
+The format of inf is as follows:
+;[device name]
+%SingleAdbInterface% = USB_Install, USB\VID_xxxx&PID_xxxx
+%CompositeAdbInterface% = USB_Install, USB\VID_xxxx&PID_xxxx&MI_xx
+
+You have to add your device in the format based on device info in devmgmt.msc
+> under the ‘Universal Serial Bus controllers‘ OR ‘Other devices‘ sections in Device Manager you would see a yellow-colored triangle warning icon beside the connected device
+> Right-click on the device name and click on ‘Properties‘> ‘Details‘ tab and select ‘Hardware Ids‘ from the dropdown menu your device VID and PID will be listed here
+> In case your device also has a REV_xxxx ID, you will need to add two lines for the %SingleAdbInterface% item. One without and another with the REV ID. The line with the REV ID should look like:
+USB\VID_xxxx&PID_xxxx&REV_xxxx
+> For the %CompositeAdbInterface% item, you will further need to add ‘MI_01‘ ID towards the end. With the MI_01 ID, the line should look like:
+USB\VID_xxxx&PID_xxxx&MI_01
+P.S: To check if what you are doing in right you can check the information for the google devices in the same file
+> replace the ‘[device name]‘ item with your actual device
+> Now try to install the drivers as usual from devmgmt.msc and they should go though
 
 =====================================================
 
 Bootloader Unlocking Process: UNLOCKING BOOTLOADER WIPES DATA, BACKUP DATA BEFORE THIS
-> Copy all files to be flashed to the folder with fastboot and adb
 > Enable developer mode (Click 7 times on build number in settings)
 > Enable USB Debugging (Settings)
 > Enable "OEM Unlock" in settings (Andoid M onwards has this option)
-> Connect device and put it in in file transfer mode (MTP) #for general compatibility not necessary in most cases
+> Connect device and put it in in file tranfer mode (MTP) #for general compaitibility not necessary in most cases
 adb devices #check if your device is showing (should show an ID and say device next to it) it will confirm is drivers are installed. USB debugging must be enabled on the phone and install via USB should be enabled in developer options, connect in file transfer mode  and accept connection on device
 adb reboot bootloader #to go into fastboot mode or Vol Up+Pwr button
 fastboot devices #should show your device with an ID and say fastboot next to it which means fastboot is working
+fastboot flashing unlock #for new version (if previous command doesn't work)) again replace with lock to lock
 fastboot oem device-id #should give device ID if drivers are properly installed good command to verify before making system changes
 fastboot oem unlock #to unlock bootloader replace with lock for locking bootloader
-fastboot flashing unlock #for new version (if previous command doesn't work)) again replace with lock to lock
 
 =====================================================
 
 Recovery Flashing Process:
+First boot with recovery without flashing to make sure it works using the following command:
+fastboot boot twrp.img #boot image through fastboot which is temporary there is no flashing
 fastboot flash recovery <filename>.img #Many devices will replace custom recovery after installation. To prevent this TWRP will patch the stock ROM if you reboot into recovey after flashing TWRP
-ALTERNATE:
-fastboot boot TWRP.img #boot image through fastboot which is temporary there is no flashing
 
 =====================================================
 
@@ -108,6 +145,10 @@ adb backup #Create a full backup of your Android device and save to your compute
 adb restore #Restore a backup to your device
 
 ADB shell commands:
+adb shell input keyevent 26 && adb shell input keyevent KEYCODE_MENU && adb shell input text <PIN/Password>
+adb reboot recovery #To go to recovery
+adb reboot download #To go to ODIN
+adb install <packagename>
 adb shell #Or prefix each commands with "adb shell". Admin privileges may be required to go into adb shell
 $> screencap #By using the following ADB shell commands, you can capture the screenshot of your device display and then download the captured screen to your computer
 $> screenrecord #On Android devices running Android 4.4 KitKat and above, you can even record your phone or tablet’s screen and download the recorded video to your computer using the AD
@@ -117,7 +158,7 @@ $> dumpsys #You can also use it to get information about specific components of 
 $> cmd appops set <pkgname> RUN_IN_BACKGROUND ignore #to disable background running use "allow" to enable 
 $> cmd appops set <pkgname> WAKE_LOCK ignore #to disable Wakelock. Use "allow" to enable
 $> cmd package install-existing <name of package> #to install system package again
-$> pm list packages | grep <pkgname> #list all packages and pipe them to grep such as "amazon/flipkart/Xiaomi/samsung" etc
+$> pm list packages | grep <pkgname> #list all packages and pipe them to grep such as "amazon/flipkart/Xiaomi/samsung" etc.
 $> pm list packages -d #-f #To list all the packages installed on your devices including the system apps
 $> pm list packages -d #-s #To get a list only system packages
 $> pm list packages -d #-3 #To list only 3rd-party packages
@@ -131,6 +172,8 @@ $> pm uninstall <packagename> #to remove the 0kb entries after uninstalling an a
 $> pm clear <pkgname> #delete data
 $> chmod 755 /pathtoapplication/applicationname #Only chmod after copy to andriod FS. If file has been copied from FAT32 partition which doesn't save permissions
 $> rm </path/filename> #To delete files. Required to be mounted as rw
+adb push <filename> </pathtodirectoryonphone/> #copy files to phone
+adb pull </pathtofile/filename> <destination> #copy files to computer
 
 Other fastboot commands:
 fastboot flash boot <boot.img>
