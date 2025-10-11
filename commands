@@ -143,17 +143,24 @@ adb push <filename> </pathtodirectoryonphone/> #copy files to phone
 adb pull </pathtofile/filename> <destination> #copy files to computer
 adb backup #Create a full backup of your Android device and save to your computer
 adb restore #Restore a backup to your device
+adb backup -apk -shared -all -f backup.ab # Will be deprecated
+adb backup -apk <pkg.name> -shared -all -f pkg.name.ab # Will be deprecated
+adb restore backup.ab # Appwise backup
+adb restore pkg.name.ab
 
 ADB shell commands:
 adb shell input keyevent 26 && adb shell input keyevent KEYCODE_MENU && adb shell input text <PIN/Password>
 adb reboot recovery #To go to recovery
 adb reboot download #To go to ODIN
 adb install <packagename>
+adb exec-out screencap -p > <filename.png>
 adb shell #Or prefix each commands with "adb shell". Admin privileges may be required to go into adb shell
 $> screencap #By using the following ADB shell commands, you can capture the screenshot of your device display and then download the captured screen to your computer
-$> screenrecord #On Android devices running Android 4.4 KitKat and above, you can even record your phone or tablet’s screen and download the recorded video to your computer using the AD
+$> screenrecord /sdcard/<filename.mp4> #On >=Android 4.4 KitKat, has to be first saved to phone memory and then downloaded
 $> top #If you want to know about the top CPU processes running on your Android device
 $> input keyevent <event#id> #By using the following ADB Shell key event commands, you can trigger certain actions performed by certain hardware buttons or UI options on Android devices
+$> input tap <x> <y>
+$> input text "<text>"
 $> dumpsys #You can also use it to get information about specific components of your device, such as display, battery, etc by using additional agruments
 $> cmd appops set <pkgname> RUN_IN_BACKGROUND ignore #to disable background running use "allow" to enable 
 $> cmd appops set <pkgname> WAKE_LOCK ignore #to disable Wakelock. Use "allow" to enable
@@ -170,6 +177,9 @@ $> pm disable <packagename> #System will ignore these packages. "enable" to enab
 $> pm uninstall -k --user 0 <name of package> #Using -k will leave cache and data in place allows prevents checks for some OEM software allowing installation. It uninstalls only for one user so package will remain on system. System apps in system partition can be disabled as uninstalling it will not give back space as the system partition is not used for any other purpose.
 $> pm uninstall <packagename> #to remove the 0kb entries after uninstalling an app. <packagename> here is the name of the 0kb entry
 $> pm clear <pkgname> #delete data
+$> run-as <pkg.name> # To unhide app specific files/config to show only when app is running
+$> ls # list <pkg.name> files
+$> cd shared_prefs	# Has files related to saved settings only accessible onces shelled and run-as
 $> chmod 755 /pathtoapplication/applicationname #Only chmod after copy to andriod FS. If file has been copied from FAT32 partition which doesn't save permissions
 $> rm </path/filename> #To delete files. Required to be mounted as rw
 adb push <filename> </pathtodirectoryonphone/> #copy files to phone
