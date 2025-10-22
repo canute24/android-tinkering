@@ -152,10 +152,12 @@ ADB shell commands:
 adb shell input keyevent 26 && adb shell input keyevent KEYCODE_MENU && adb shell input text <PIN/Password>
 adb reboot recovery #To go to recovery
 adb reboot download #To go to ODIN
+adb tcpip <port> # on wired computer; adb connect <device_ip>:<port> #on wireless compter
 adb install <packagename>
 adb exec-out screencap -p > <filename.png>
+adb exec-out screenrecord --output-format=h265 - | ffplay -framerate 60 -probesize 32 -sync video -
+adb shell screenrecord --output-format=h265 - | ffplay - # Likely to cause problems of special chars interpretation in stdout if in shell
 adb shell #Or prefix each commands with "adb shell". Admin privileges may be required to go into adb shell
-$> screencap #By using the following ADB shell commands, you can capture the screenshot of your device display and then download the captured screen to your computer
 $> screenrecord /sdcard/<filename.mp4> #On >=Android 4.4 KitKat, has to be first saved to phone memory and then downloaded
 $> top #If you want to know about the top CPU processes running on your Android device
 $> input keyevent <event#id> #By using the following ADB Shell key event commands, you can trigger certain actions performed by certain hardware buttons or UI options on Android devices
